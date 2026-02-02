@@ -4,19 +4,18 @@
     <div class="nav">
         <button>Profile</button>
         <button>Logout</button>
-
     </div>
-
   </header>
   <main>
     <h1>How can I help you?</h1>
     <div class="msg" v-for="(msg, i) in messages" :key="i">
       <p v-if="msg.role==='AI'" class="AI"><strong>{{ msg.role }}:</strong> {{ msg.text }}</p>
-      <p v-else-if="msg.role==='User'" class="User"> {{ msg.text }}<strong> :{{ msg.role }}</strong></p>
+      <p v-else-if="msg.role==='User'" class="User"><strong>{{ msg.role }}:</strong> {{ msg.text }}</p>
     </div>
+    <p v-if="loading" class="typing">AI is typing…</p>
     <div id="input" class="input-container">
-        <input v-model="input" placeholder="Enter your query" />
-        <button @click="send">Send</button>
+        <input v-model="input" placeholder="Enter your query" :disabled="loading" @keydown.enter.prevent="send"/>
+        <button @click="send" :disabled="loading || !input.trim()">{{ loading ? 'Sending...' : 'Send' }}</button>
     </div>
 
   </main>
@@ -31,10 +30,29 @@ const messages = ref([
   { role: 'AI', text: 'The leave policy allows 20 days annually.' }
 ])
 
-function send() {
-  messages.value.push({ role: 'User', text: input.value })
-  messages.value.push({ role: 'AI', text: 'LLM response' })
+const loading = ref(false)
+
+async function send() {
+  const text = input.value.trim()
+  if (!text || loading.value) return
+
+  messages.value.push({ role: 'User', text: text})
   input.value = ''
+
+  loading.value = true
+  try {
+    const data = await $fetch('/api/chat', {
+      method: 'POST',
+      body: { query: text }
+    })
+
+    messages.value.push({ role: 'AI', text: data.answer })
+  } catch (err) {
+    console.error(err)
+    messages.value.push({ role: 'AI', text: 'Error contacting server.' })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -59,7 +77,6 @@ header {
   max-height: 30px;
   background-color: rgb(81, 123, 170);
   padding: 10px;
-  margin: 0px 3px;
 }
 .button-container {
   display: flex;
@@ -114,6 +131,7 @@ button {
   padding: 10px 14px;
   border: none;
   border-radius: 10px;
+  margin: 2px;
   cursor: pointer;
   font-weight: bold;
   font-family:Arial, Helvetica, sans-serif;
