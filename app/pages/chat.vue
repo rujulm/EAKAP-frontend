@@ -110,6 +110,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 header {
@@ -119,6 +120,7 @@ header {
   max-height: 30px;
   background-color: rgb(81, 123, 170);
   padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 .button-container {
   display: flex;
