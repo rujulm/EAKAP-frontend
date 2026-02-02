@@ -16,7 +16,7 @@
         <button @click="sendFeedback(i, 'up')" :disabled="msg.feedbackSent || msg.feedbackLoading">👍</button>
         <button @click="sendFeedback(i, 'down')" :disabled="msg.feedbackSent || msg.feedbackLoading">👎</button>
         <span v-if="msg.feedbackLoading" class="feedback-status">Sending…</span>
-        <span v-else-if="msg.feedbackSent" class="feedback-status">Thanks!</span>
+        <span v-else-if="msg.feedbackSent" class="feedback-status">Thank you!</span>
         <span v-else-if="msg.feedbackError" class="feedback-error">Failed</span>
       </div>
     </div>
