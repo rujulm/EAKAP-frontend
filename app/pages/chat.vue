@@ -9,7 +9,17 @@
   <main>
     <h1>How can I help you?</h1>
     <div class="msg" v-for="(msg, i) in messages" :key="i">
-      <p v-if="msg.role==='AI'" class="AI"><strong>{{ msg.role }}:</strong> {{ msg.text }}</p>
+      <div v-if="msg.role === 'AI'" class="AI">
+      <p><strong>{{ msg.role }}:</strong> {{ msg.text }}</p>
+
+      <div class="feedback">
+        <button @click="sendFeedback(i, 'up')" :disabled="msg.feedbackSent || msg.feedbackLoading">👍</button>
+        <button @click="sendFeedback(i, 'down')" :disabled="msg.feedbackSent || msg.feedbackLoading">👎</button>
+        <span v-if="msg.feedbackLoading" class="feedback-status">Sending…</span>
+        <span v-else-if="msg.feedbackSent" class="feedback-status">Thanks!</span>
+        <span v-else-if="msg.feedbackError" class="feedback-error">Failed</span>
+      </div>
+    </div>
       <p v-else-if="msg.role==='User'" class="User"><strong>{{ msg.role }}:</strong> {{ msg.text }}</p>
     </div>
     <p v-if="loading" class="typing">AI is typing…</p>
@@ -46,12 +56,44 @@ async function send() {
       body: { query: text }
     })
 
-    messages.value.push({ role: 'AI', text: data.answer })
+    messages.value.push({ role: 'AI', text: data.answer, 
+      feedbackSent: false,
+      feedbackLoading: false,
+      feedbackError: false })
   } catch (err) {
     console.error(err)
-    messages.value.push({ role: 'AI', text: 'Error contacting server.' })
+    messages.value.push({ role: 'AI', text: 'Error contacting server.', 
+      feedbackSent: false,
+      feedbackLoading: false,
+      feedbackError: false })
   } finally {
     loading.value = false
+  }
+}
+
+async function sendFeedback(index, type) {
+  const msg = messages.value[index]
+  if (!msg || msg.role !== 'AI') return
+  if (msg.feedbackSent || msg.feedbackLoading) return
+
+  msg.feedbackError = false
+  msg.feedbackLoading = true
+
+  try {
+    await $fetch('/api/feedback', {
+      method: 'POST',
+      body: {
+        rating: type,
+        text: msg.text,
+        timestamp: Date.now()
+      }
+    })
+    msg.feedbackSent = true
+  } catch (e) {
+    console.error(e)
+    msg.feedbackError = true
+  } finally {
+    msg.feedbackLoading = false
   }
 }
 </script>
@@ -88,22 +130,29 @@ main > div.msg {
   width: 100%;
 }
 
-main > div:has(p.AI) {
+main > div:has(.AI) {
   justify-content: flex-start;
 }
 
-main > div:has(p.User) {
+main > div:has(.User) {
   justify-content: flex-end;
 }
 
-p.AI, p.User {
+p.User {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #cce5ff;
+}
+.AI {
+  background: #eee;
   max-width: 70%;
   padding: 8px 12px;
   border-radius: 12px;
 }
-p.AI { background: #eee; }
-p.User { background: #cce5ff; }
-
+.AI p {
+  margin: 0;
+}
 .input-container {
   display: flex;
   gap: 10px;
@@ -137,6 +186,30 @@ button {
   font-family:Arial, Helvetica, sans-serif;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
+.feedback {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+.feedback button {
+  padding: 2px 3px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.feedback-status {
+  opacity: 0.8;
+}
+
+.feedback-error {
+  color: #b00020;
+  font-weight: 600;
+}
 
 </style>
