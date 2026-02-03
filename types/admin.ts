@@ -13,7 +13,7 @@ export interface DocumentActivity {
 }
 
 export interface Document {
-
+	id: string
 	name: string
 	uploadDate: Date | string
 	activity: DocumentActivity[]
