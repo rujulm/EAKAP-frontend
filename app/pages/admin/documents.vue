@@ -1,4 +1,5 @@
 <template>
+  <NuxtLayout>
   <header>
     <h2>AI Assistant</h2>
     <div class="nav">
@@ -50,8 +51,9 @@
       <p v-else class="muted">No documents yet.</p>
     </section>
   </main>
-</template>
 
+</NuxtLayout>
+</template>
 <script setup>
 import { onMounted, ref } from 'vue'
 
@@ -147,7 +149,9 @@ async function remove(id) {
     deletingId.value = null
   }
 }
-
+definePageMeta({
+  layout: 'admin'
+})
 onMounted(load)
 </script>
 
