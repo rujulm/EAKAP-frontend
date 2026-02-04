@@ -1,12 +1,5 @@
 <template>
-  <header>
-    <h2>AI Assistant</h2>
-    <div class="nav">
-        <button>Profile</button>
-        <button>Logout</button>
-    </div>
-  </header>
-  <main>
+  <div class="chat-page">
     <h1>How can I help you?</h1>
     <div class="msg" v-for="(msg, i) in messages" :key="i">
       <div v-if="msg.role === 'AI'" class="AI">
@@ -27,8 +20,7 @@
         <input v-model="input" placeholder="Enter your query" :disabled="loading" @keydown.enter.prevent="send"/>
         <button @click="send" :disabled="loading || !input.trim()">{{ loading ? 'Sending...' : 'Send' }}</button>
     </div>
-
-  </main>
+  </div>
 </template>
 
 <script setup>
@@ -98,63 +90,46 @@ async function sendFeedback(index, type) {
 }
 </script>
 
-<style>
+<style scoped>
 
-h2 {
-  color: white;
-}
-
-main {
-  max-width: 800px;
-  margin: 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-height: 30px;
-  background-color: rgb(81, 123, 170);
+h1 {
+  text-align: center;
   padding: 10px;
-  font-family: Arial, Helvetica, sans-serif;
 }
-.button-container {
-  display: flex;
-  justify-content: end;
-}
-
 main > div.msg {
   display: flex;
-  width: 100%;
 }
 
-main > div:has(.AI) {
+.msg {
+  display: flex;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.msg:has(.AI) {
   justify-content: flex-start;
 }
 
-main > div:has(.User) {
+.msg:has(.User) {
   justify-content: flex-end;
 }
 
 p.User {
-  max-width: 70%;
   padding: 8px 12px;
   border-radius: 12px;
   background: #cce5ff;
 }
+
 .AI {
   background: #eee;
-  max-width: 70%;
   padding: 8px 12px;
   border-radius: 12px;
 }
+
 .AI p {
   margin: 0;
 }
+
 .input-container {
   display: flex;
   gap: 10px;
@@ -185,7 +160,7 @@ button {
   margin: 2px;
   cursor: pointer;
   font-weight: bold;
-  font-family:Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 button:disabled {
@@ -199,6 +174,7 @@ button:disabled {
   align-items: center;
   font-size: 12px;
 }
+
 .feedback button {
   padding: 2px 3px;
   border-radius: 6px;
@@ -215,3 +191,4 @@ button:disabled {
 }
 
 </style>
+
