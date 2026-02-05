@@ -2,7 +2,7 @@
 
 export interface CardProps {
   stat: string
-  value: string
+  value: number
 }
 
 defineProps<CardProps>()
