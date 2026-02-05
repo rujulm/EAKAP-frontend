@@ -3,7 +3,7 @@
 Frontend for the Enterprise AI Assistant.
 
 ## Tech Stack
-- Nuxt 3 (Vue)
+- Nuxt 4 (Vue)
 
 ## Development
 ```bash
