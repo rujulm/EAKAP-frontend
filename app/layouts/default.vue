@@ -35,9 +35,10 @@ header {
 }
 
 .page {
+  background-color: black;
   margin: 1rem auto;
   padding: 0 12px;
-  width: 90%;
+  width: 100%;
   font-family: Arial, Helvetica, sans-serif;
 }
 </style>
