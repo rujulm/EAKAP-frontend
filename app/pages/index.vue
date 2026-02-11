@@ -6,10 +6,7 @@
 </template>
 
 
-<script setup>
-import Comparison from '~/components/sections/Comparison.vue';
-import SecurityTrust from '~/components/sections/SecurityTrust.vue';
-</script>
+
 
 <style>
 .landing-page {
