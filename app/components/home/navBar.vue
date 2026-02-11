@@ -19,16 +19,19 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-  <UHeader>
+  <UHeader class="bg-black border-b border-gray-800">
     <template #title>
-      <NuxtLogo class="h-6 w-auto" />
+      <div class="flex items-center">
+        <NuxtImg src="/EAKAP Logo.png" alt="EAKAP Logo" class="h-12 w-auto" />
+        <span class="text-white">EAKAP</span>
+      </div>
     </template>
 
     
     <template #right>
 
-    <UNavigationMenu :items="items" />
-			<UButton> Get Started </UButton>
+    <UNavigationMenu :items="items" class="text-gray-300 hover:text-white transition-colors text-sm font-medium" />
+			<UButton class="bg-white text-black hover:bg-gray-200"> Get Started </UButton>
 
     </template>
   </UHeader>
