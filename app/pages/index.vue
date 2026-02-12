@@ -2,6 +2,7 @@
   <div class="landing-page">
     <HomeHero />
     <SectionsComparison />
+<HomeHowItWorks />
     <SectionsSecurityTrust />
   </div>
 </template>
