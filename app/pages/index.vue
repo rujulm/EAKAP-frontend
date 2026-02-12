@@ -1,7 +1,8 @@
 <template>
   <div class="landing-page">
-    <Comparison />
-    <SecurityTrust />
+    <HomeHero />
+    <SectionsComparison />
+    <SectionsSecurityTrust />
   </div>
 </template>
 
