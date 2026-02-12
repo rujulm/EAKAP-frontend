@@ -31,6 +31,7 @@ const links = ref<ButtonProps[]>([
     <template #headline>
       <UIcon name="i-lucide-shield-check" class="w-4 h-4" />
       <span>Enterprise-Grade Security</span>
-    </template>
+    </template>  <HomeHeroCTA />
   </UPageHero>
+ 
 </template>
