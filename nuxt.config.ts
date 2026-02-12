@@ -3,5 +3,8 @@ export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
 	devtools: { enabled: true },
 	modules: ['@nuxt/ui'],
-	css: ['~/assets/css/main.css']
+	css: ['~/assets/css/main.css'],
+	runtimeConfig: {
+		apiBaseUrl: process.env.NUXT_API_BASE_URL || process.env.API_BASE_URL || 'http://localhost:8000'
+	}
 })

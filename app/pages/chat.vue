@@ -38,26 +38,81 @@ async function send() {
   const text = input.value.trim()
   if (!text || loading.value) return
 
-  messages.value.push({ role: 'User', text: text})
+  messages.value.push({ role: 'User', text })
   input.value = ''
+
+  const aiMsg = {
+    role: 'AI',
+    text: '',
+    feedbackSent: false,
+    feedbackLoading: false,
+    feedbackError: false
+  }
+  messages.value.push(aiMsg)
 
   loading.value = true
   try {
-    const data = await $fetch('/api/chat', {
+    const res = await fetch('/api/chat/ask', {
       method: 'POST',
-      body: { query: text }
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ query: text })
     })
 
-    messages.value.push({ role: 'AI', text: data.answer, 
-      feedbackSent: false,
-      feedbackLoading: false,
-      feedbackError: false })
+    if (!res.ok) {
+      const errData = res.headers.get('content-type')?.includes('application/json')
+        ? await res.json().catch(() => ({}))
+        : await res.text()
+      if (res.status === 401) {
+        aiMsg.text = 'Please log in to use chat.'
+      } else {
+        aiMsg.text = typeof errData === 'string' ? errData : (errData?.message ?? 'Error contacting server.')
+      }
+      return
+    }
+
+    const reader = res.body?.getReader()
+    const decoder = new TextDecoder()
+    if (!reader) {
+      aiMsg.text = 'No response stream.'
+      return
+    }
+
+    let buffer = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const payload = line.slice(6)
+          if (payload === '[DONE]') continue
+          try {
+            const parsed = JSON.parse(payload)
+            const chunk = typeof parsed === 'string' ? parsed : (parsed?.text ?? parsed?.delta ?? parsed?.content ?? '')
+            if (chunk) aiMsg.text += chunk
+          } catch {
+            aiMsg.text += payload
+          }
+        }
+      }
+    }
+    if (buffer.startsWith('data: ')) {
+      const payload = buffer.slice(6)
+      try {
+        const parsed = JSON.parse(payload)
+        const chunk = typeof parsed === 'string' ? parsed : (parsed?.text ?? parsed?.delta ?? parsed?.content ?? '')
+        if (chunk) aiMsg.text += chunk
+      } catch {
+        aiMsg.text += payload
+      }
+    }
+    if (!aiMsg.text) aiMsg.text = '(No content)'
   } catch (err) {
     console.error(err)
-    messages.value.push({ role: 'AI', text: 'Error contacting server.', 
-      feedbackSent: false,
-      feedbackLoading: false,
-      feedbackError: false })
+    aiMsg.text = 'Error contacting server.'
   } finally {
     loading.value = false
   }
@@ -92,6 +147,10 @@ async function sendFeedback(index, type) {
 
 <style scoped>
 
+.chat-page {
+  color: #1a1a1a;
+}
+
 h1 {
   text-align: center;
   padding: 10px;
@@ -118,12 +177,14 @@ p.User {
   padding: 8px 12px;
   border-radius: 12px;
   background: #cce5ff;
+  color: #1a1a1a;
 }
 
 .AI {
   background: #eee;
   padding: 8px 12px;
   border-radius: 12px;
+  color: #1a1a1a;
 }
 
 .AI p {
