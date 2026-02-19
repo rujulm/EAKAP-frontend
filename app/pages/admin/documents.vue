@@ -3,8 +3,8 @@
   <header>
     <h2>AI Assistant</h2>
     <div class="nav">
-        <button>Profile</button>
-        <button>Logout</button>
+        <NuxtLink to="/admin/profile" class="nav-btn">Profile</NuxtLink>
+        <button @click="handleLogout">Logout</button>
     </div>
   </header>
   <main class="wrap">
@@ -56,6 +56,9 @@
 </template>
 <script setup>
 import { onMounted, ref } from 'vue'
+
+const { logout } = useAuth()
+const router = useRouter()
 
 const docs = ref([])
 const loading = ref(false)
@@ -149,6 +152,12 @@ async function remove(id) {
     deletingId.value = null
   }
 }
+
+async function handleLogout() {
+  await logout()
+  await router.push('/login')
+}
+
 definePageMeta({
   layout: 'admin'
 })
@@ -231,4 +240,13 @@ button:disabled {
   transition: opacity 0.4s ease;
 }
 .muted { opacity: 0.7; margin-top: 10px; }
+
+.nav-btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin: 2px;
+  color: white;
+  text-decoration: none;
+}
 </style>

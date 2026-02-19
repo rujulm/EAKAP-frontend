@@ -99,8 +99,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+
+const { accessToken, clearAuth } = useAuth()
+const router = useRouter()
 
 const input = ref('')
 const messages = ref([
@@ -119,26 +122,34 @@ async function send() {
 
   loading.value = true
   try {
-    const data = await $fetch('/api/chat', {
+    const token = accessToken.value
+    const data = await $fetch<{ answer: string }>('/api/chat', {
       method: 'POST',
-      body: { query: text }
+      body: { query: text },
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     })
 
-    messages.value.push({ 
-      role: 'AI', 
-      text: data.answer, 
+    messages.value.push({
+      role: 'AI',
+      text: data.answer,
       feedbackSent: false,
       feedbackLoading: false,
-      feedbackError: false 
+      feedbackError: false
     })
-  } catch (err) {
+  } catch (err: unknown) {
+    const status = (err as { statusCode?: number })?.statusCode
+    if (status === 401) {
+      clearAuth()
+      await router.push('/login')
+      return
+    }
     console.error(err)
-    messages.value.push({ 
-      role: 'AI', 
-      text: 'Error contacting server.', 
+    messages.value.push({
+      role: 'AI',
+      text: 'Error contacting server.',
       feedbackSent: false,
       feedbackLoading: false,
-      feedbackError: false 
+      feedbackError: false
     })
   } finally {
     loading.value = false
